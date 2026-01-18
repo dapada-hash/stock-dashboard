@@ -46,18 +46,18 @@ def scan(interval="1d"):
 
         df = normalize_df(df)
 
-        # Moving averages
-        df["MA10"] = df["Close"].rolling(10).mean()
-        df["MA50"] = df["Close"].rolling(50).mean()
-        df["MA200"] = df["Close"].rolling(200).mean()
+        # 🔹 Calculate moving averages and force float
+        df["MA10"] = df["Close"].rolling(10).mean().astype(float)
+        df["MA50"] = df["Close"].rolling(50).mean().astype(float)
+        df["MA200"] = df["Close"].rolling(200).mean().astype(float)
 
         latest = df.iloc[-1]
 
-        # 🔒 Force scalars (safe)
-        price = float(latest["Close"])
-        ma10  = float(latest["MA10"])
-        ma50  = float(latest["MA50"])
-        ma200 = float(latest["MA200"])
+        # 🔒 Force scalars safely
+        price  = float(latest["Close"])
+        ma10   = float(latest["MA10"])
+        ma50   = float(latest["MA50"])
+        ma200  = float(latest["MA200"])
 
         in_position = positions.get(ticker, False)
 
@@ -103,3 +103,10 @@ def scan(interval="1d"):
         })
 
     return results
+
+# Optional: quick test
+if __name__ == "__main__":
+    stocks = scan()
+    for s in stocks:
+        status = "🟢 IN" if s["in_position"] else "⚪ OUT"
+        print(f"{s['ticker']:<6} P:{s['price']:<7} MA10:{s['ma10']:<7} MA50:{s['ma50']:<7} MA200:{s['ma200']:<7} {status} | Put: {s['put_strike']} Premium: {s['put_premium']}")

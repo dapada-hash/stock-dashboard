@@ -50,7 +50,8 @@ def open_browser():
     webbrowser.open_new("http://127.0.0.1:5000/")
 
 if __name__ == "__main__":
+   if __name__ == "__main__":
     # Open browser in a separate thread so it doesn't block the server
     threading.Timer(1, open_browser).start()
-    # Run Flask server
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    # Run Flask server in debug mode
+    app.run(host="127.0.0.1", port=5000, debug=True)
