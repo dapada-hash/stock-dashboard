@@ -1,30 +1,27 @@
 from flask import Flask, render_template, request, Response
 from scanner import scan
-import webbrowser
-import threading
 from functools import wraps
+from waitress import serve  # Production-ready server
+import os
 
 app = Flask(__name__)
 
 # -----------------------------
 # 🔐 BASIC AUTH CREDENTIALS
 # -----------------------------
-USERNAME = "mendijd"   # change this to your preferred username
-PASSWORD = "Mygit@dapada60"   # change this to your preferred password
+USERNAME = "mendijd"
+PASSWORD = "Mygit@dapada60"
 
 def check_auth(u, p):
-    """Check if username and password are correct."""
     return u == USERNAME and p == PASSWORD
 
 def authenticate():
-    """Sends 401 response for unauthorized access."""
     return Response(
         'Could not verify access', 401,
         {'WWW-Authenticate': 'Basic realm="Login Required"'}
     )
 
 def requires_auth(f):
-    """Decorator to require authentication on a route."""
     @wraps(f)
     def decorated(*args, **kwargs):
         auth = request.authorization
@@ -38,20 +35,21 @@ def requires_auth(f):
 
 # 🔹 DASHBOARD ROUTE
 @app.route("/")
-@requires_auth   # protect your dashboard route
+@requires_auth
 def dashboard():
-    # Scan all tickers and get their MA signals + put suggestions
     stocks = scan(interval="1d")
     return render_template("dashboard.html", stocks=stocks)
 
-# 🔹 AUTO OPEN BROWSER
-def open_browser():
-    """Open default browser after server starts."""
-    webbrowser.open_new("http://127.0.0.1:5000/")
-
+# -----------------------------
+# RUN SERVER
+# -----------------------------
 if __name__ == "__main__":
-   if __name__ == "__main__":
-    # Open browser in a separate thread so it doesn't block the server
-    threading.Timer(1, open_browser).start()
-    # Run Flask server in debug mode
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    import os
+    from waitress import serve
+
+    # Use port from environment or default to 5000
+    port = int(os.environ.get("PORT", 5000))
+
+    # Start Waitress (production-ready) server
+    print(f"Starting server on http://0.0.0.0:{port} ...")
+    serve(app, host="0.0.0.0", port=port)
