@@ -53,11 +53,11 @@ def scan(interval="1d"):
 
         latest = df.iloc[-1]
 
-        # 🔒 Force scalars safely
-        price  = float(latest["Close"])
-        ma10   = float(latest["MA10"])
-        ma50   = float(latest["MA50"])
-        ma200  = float(latest["MA200"])
+        # 🔒 Force scalars safely (handle Series or float)
+        price  = float(latest["Close"].iloc[0] if hasattr(latest["Close"], "iloc") else latest["Close"])
+        ma10   = float(latest["MA10"].iloc[0]   if hasattr(latest["MA10"],   "iloc") else latest["MA10"])
+        ma50   = float(latest["MA50"].iloc[0]   if hasattr(latest["MA50"],   "iloc") else latest["MA50"])
+        ma200  = float(latest["MA200"].iloc[0]  if hasattr(latest["MA200"],  "iloc") else latest["MA200"])
 
         in_position = positions.get(ticker, False)
 
